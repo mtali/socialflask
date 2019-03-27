@@ -23,3 +23,7 @@ pip-log.txt
 venv
 *.pyc
 build
+
+# SQLite
+
+*.sqlite
