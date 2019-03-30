@@ -8,24 +8,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css', _external=True)}}">
 {% endblock %}
 
-{% block content %}
-    <div class="container">
-        {% for message in get_flashed_messages() %}
-            <div class="alert alert-warning">
-                <button type="button" class="close" name="button" data-dismiss="alert">&times;</button>
-                {{ message }}
-            </div>
-        {% endfor %}
-        <div class="page-header">
-            <h1>Hello, {% if name %} {{ name }} {% else %} Stranger {% endif %}</h1>
-            {% if not known %}
-                <p>Please to meet you.</p>
+{% block page_content %}
+    <div class="page-header">
+        <h1>
+            Hello,
+            {% if current_user.is_authenticated %}
+                {{ current_user.username }}
             {% else %}
-                <p>Happy to see you again.</p>
+                Stranger
             {% endif %}
-        </div>
-        {{ wtf.quick_form(form) }}
+        </h1>
     </div>
+    {{ wtf.quick_form(form) }}
 {% endblock %}
 
 {% block scripts %}
