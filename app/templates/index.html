@@ -3,11 +3,6 @@
 
 {% block title %} Flasky {% endblock %}
 
-{% block head %}
-    {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css', _external=True)}}">
-{% endblock %}
-
 {% block page_content %}
     <div class="page-header">
         <h1>
