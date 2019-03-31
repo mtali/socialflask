@@ -3,32 +3,22 @@ from flask import render_template, session, redirect, url_for, abort, flash
 from flask_login import login_required, current_user
 
 from . import main
-from .forms import NameForm, EditProfileForm, EditProfileAdminForm
+from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from .. import db
-from ..models import User, Role
+from ..models import User, Role, Post
 from ..decorators import admin_required
+from ..permissions import SitePermission as Permission
 
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = NameForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if user:
-            session['known'] = True
-        else:
-            user = User(username=form.name.data)
-            db.session.add(user)
-            session['known'] = False
-        # save name to cookie
-        session['name'] = form.name.data
-        form.name.data = ""
-        return redirect(url_for('.index'))
-    return render_template('index.html',
-                           form=form,
-                           name=session.get('name'),
-                           known=session.get('known', False),
-                           current_time=datetime.utcnow())
+    form = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLE) and form.validate_on_submit():
+        post = Post(body=form.body.data, author=current_user._get_current_object())
+        db.session.add(post)
+        return redirect(url_for(".index"))
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template("index.html", form=form, posts=posts)
 
 
 @main.route('/user/<username>')
@@ -36,7 +26,8 @@ def user(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         abort(404)
-    return render_template('main/user.html', user=user)
+    posts = user.posts.order_by(Post.timestamp.desc()).all()
+    return render_template('main/user.html', user=user, posts=posts)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
