@@ -1,0 +1,6 @@
+class SitePermission:
+    FOLLOW = 0x01
+    COMMENT = 0x02
+    WRITE_ARTICLE = 0x03
+    MODERATE_COMMENTS = 0x08
+    ADMINISTER = 0x80
